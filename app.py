@@ -23,8 +23,43 @@ def add_product():
         product = Product(name=data["name"],price=data["price"],description=data.get("description", ""))
         db.session.add(product)
         db.session.commit()
-        return "produto cadastrado com sucesso!"
-    return jsonify({"message":"Invalid product data"})
+        return jsonify({"message":"Product added successfully!"})
+    return jsonify({"message":"Invalid product data"}), 400
+
+@app.route('/api/products/delete/<int:product_id>', methods=["DELETE"])
+def delete_product(product_id):
+    # Recuperar o produto da base de dados
+    # Verificar se o produto existe, e se existe apagar da base de dados
+    #se nao existe, retornar erro 404 not found
+    product = Product.query.get(product_id)
+    if product:
+        db.session.delete(product)
+        db.session.commit()
+        return jsonify({"message":"Product deleted successfully!"})
+    return jsonify({"message":"product not found"}), 404 
+
+#recuperar detallhes do produto
+@app.route('/api/products/<int:product_id>', methods=["GET"])
+def get_product(product_id):
+    product = Product.query.get(product_id)
+    if product:
+        return jsonify({
+            "id": product.id,
+            "name": product.name,
+            "price": product.price,
+            "description": product.description
+            })
+    return jsonify({"message": "Product not found"}), 404
+
+
+@app.route('/api/products/update/<int:product_id>', methods=["PUT"])
+def update_product(product_id):
+    product = Product.query.get(product_id)
+    if not product:
+        return jsonify({"message": "Product not found"}), 404
+
+
+
 
 # Definir uma rota raiz (página inicial) e a função que será executada ao requisitar
 @app.route('/')
