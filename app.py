@@ -38,6 +38,8 @@ def delete_product(product_id):
         return jsonify({"message":"Product deleted successfully!"})
     return jsonify({"message":"product not found"}), 404 
 
+  
+
 #recuperar detallhes do produto
 @app.route('/api/products/<int:product_id>', methods=["GET"])
 def get_product(product_id):
@@ -58,8 +60,19 @@ def update_product(product_id):
     if not product:
         return jsonify({"message": "Product not found"}), 404
 
+    data = request.json
+    if 'name' in data:
+        product.name = data['name']
 
+    data = request.json
+    if 'price' in data:
+        product.price = data['price'] 
 
+    data = request.json
+    if 'description' in data:
+        product.description = data['description']   
+    db.session.commit()
+    return jsonify({'message': "Product update successfully"})
 
 # Definir uma rota raiz (página inicial) e a função que será executada ao requisitar
 @app.route('/')
