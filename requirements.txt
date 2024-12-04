@@ -6,3 +6,11 @@ Flask-Cors==3.0.10
 Werkzeug==2.3.0
 
 pip3 install -r requirements.txt
+
+#para criar no db a nova tabela do codigo precisa apagar as tabelas e criar denovo e comitar:
+# para isso no terminal power shell entre no terminal do flask: 
+#flask shell    (para abrir o terminal flask, pois o terminal python nao da certo)
+# db.drop_all()
+#db.create_all()
+#db.session.commit()
+# e exit() para sair do flask terminal

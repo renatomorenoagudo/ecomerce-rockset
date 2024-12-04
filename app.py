@@ -11,19 +11,31 @@ app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///ecommerce.db'
 db = SQLAlchemy(app)
 CORS(app)
 
+
 # Modelagem
 #user (id, username, passworld)
+
 class User(db.Model, UserMixin):
    id = db.Column(db.Integer, primary_key=True)
    username = db.column (db.String(80))
-#unique nao deixa cadastrar nomes iguais
+                         #,nullable=True, unique=True)
    password =db.Column (db.String(80), nullable=True)
+#OBS:unique nao deixa cadastrar nomes iguais
 
-   #CRIAR A TABELA LOGIN E USUARIO
+#CRIAR usuarios
 #user = User(username="", password="")
-#db.session.add(user)
-#db.session.commit()
 
+
+ 
+# Produto(id, name, price, description)
+
+class Product(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(120), nullable=False)
+    price = db.Column(db.Float, nullable=False)
+    description = db.Column(db.Text, nullable=True)
+
+#ROUTES
 
 @app.route('/login', methods=["POST"])
 def login():
@@ -33,16 +45,6 @@ def login():
     if user and data.get("password") == user.password:
             return jsonify({"message":"Logged in successfully!"})
     return jsonify({"message":"Unauthorized. Invalid credentials"}), 401
-
-    
-
-# Produto(id, name, price, description)
-
-class Product(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    name = db.Column(db.String(120), nullable=False)
-    price = db.Column(db.Float, nullable=False)
-    description = db.Column(db.Text, nullable=True)
 
 @app.route('/api/products/add', methods=["POST"])
 def add_product():
