@@ -14,3 +14,9 @@ pip3 install -r requirements.txt
 #db.create_all()
 #db.session.commit()
 # e exit() para sair do flask terminal
+
+#depois para criar um usuario teste: entra novamente no flask shell:
+#user=User(username="admin2",password="123")
+#se quiser ver se foi criado digite: user 
+#db.session.add(user)
+#db.session.commit()

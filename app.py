@@ -2,7 +2,7 @@
 from flask import Flask, request, jsonify
 from flask_sqlalchemy import SQLAlchemy
 from flask_cors import CORS
-from flask_login import UserMixin 
+from flask_login import UserMixin, login_user, login_manager, user_logged_in 
 
 
 app = Flask(__name__)
@@ -19,7 +19,7 @@ class User(db.Model, UserMixin):
    id = db.Column(db.Integer, primary_key=True)
    username = db.column (db.String(80))
                          #,nullable=True, unique=True)
-   password =db.Column (db.String(80), nullable=True)
+   password =db.Column (db.String(30), nullable=True)
 #OBS:unique nao deixa cadastrar nomes iguais
 
 #CRIAR usuarios
@@ -35,17 +35,24 @@ class Product(db.Model):
     price = db.Column(db.Float, nullable=False)
     description = db.Column(db.Text, nullable=True)
 
-#ROUTES
 
+#AUTENTICAÇÃO:
+@login_manager.user_loader
+def load_user(user_id):
+    return User.query.get(int(user_id))
+
+#ROUTE login
 @app.route('/login', methods=["POST"])
 def login():
     data = request.json
-    user = User.query.filter_by(username=data.get("username"))
+    user = User.query.filter_by(username=data.get("username")).first().deferred()
 
     if user and data.get("password") == user.password:
+            login_user(user)
             return jsonify({"message":"Logged in successfully!"})
     return jsonify({"message":"Unauthorized. Invalid credentials"}), 401
 
+#Route Product
 @app.route('/api/products/add', methods=["POST"])
 def add_product():
     data = request.json
