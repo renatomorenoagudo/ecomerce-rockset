@@ -2,13 +2,17 @@
 from flask import Flask, request, jsonify
 from flask_sqlalchemy import SQLAlchemy
 from flask_cors import CORS
-from flask_login import UserMixin, login_user, login_manager, user_logged_in 
+from flask_login import UserMixin, login_user, LoginManager, user_logged_in 
 
 
 app = Flask(__name__)
+app.config['SECRET_KEY']="minha_chave_123"
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///ecommerce.db'
 
+login_manager = LoginManager()
 db = SQLAlchemy(app)
+login_manager.init_app(app)
+login_manager.login_view = 'login'
 CORS(app)
 
 
@@ -45,7 +49,7 @@ def load_user(user_id):
 @app.route('/login', methods=["POST"])
 def login():
     data = request.json
-    user = User.query.filter_by(username=data.get("username")).first().deferred()
+    user = User.query.filter_by(username=data.get("username")).first()
 
     if user and data.get("password") == user.password:
             login_user(user)
