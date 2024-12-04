@@ -2,7 +2,7 @@
 from flask import Flask, request, jsonify
 from flask_sqlalchemy import SQLAlchemy
 from flask_cors import CORS
-from flask_login import UserMixin, login_user, LoginManager, user_logged_in 
+from flask_login import UserMixin, login_user, LoginManager, login_required
 
 
 app = Flask(__name__)
@@ -30,8 +30,7 @@ class User(db.Model, UserMixin):
 #user = User(username="", password="")
 
 
- 
-# Produto(id, name, price, description)
+ # Produto(id, name, price, description)
 
 class Product(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -58,6 +57,7 @@ def login():
 
 #Route Product
 @app.route('/api/products/add', methods=["POST"])
+@login_required
 def add_product():
     data = request.json
     if 'name' in data and 'price' in data:
@@ -68,6 +68,7 @@ def add_product():
     return jsonify({"message":"Invalid product data"}), 400
 
 @app.route('/api/products/delete/<int:product_id>', methods=["DELETE"])
+@login_required
 def delete_product(product_id):
     # Recuperar o produto da base de dados
     # Verificar se o produto existe, e se existe apagar da base de dados
@@ -96,6 +97,7 @@ def get_product(product_id):
 
 
 @app.route('/api/products/update/<int:product_id>', methods=["PUT"])
+@login_required
 def update_product(product_id):
     product = Product.query.get(product_id)
     if not product:
