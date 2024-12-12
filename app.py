@@ -19,6 +19,7 @@ CORS(app)
 # Modelagem
 # User (id, username, passworld)
 class User(db.Model, UserMixin):
+   
    id = db.Column(db.Integer, primary_key=True)
    username = db.column (db.String(80))
                          #,nullable=False, unique=True) 
@@ -26,6 +27,8 @@ class User(db.Model, UserMixin):
                          #pois assim nao criou username na tabela
    password =db.Column (db.String(30), nullable=True)
 #OBS:unique nao deixa cadastrar nomes iguais
+   cart = db.relationship('CartItem', backref='user', lazy=True)
+   #só vai recuperar os itens do carrinho quando acessar essa informaçao
 
 
 # Product (id, name, price, description)
@@ -34,6 +37,13 @@ class Product(db.Model):
     name = db.Column(db.String(120), nullable=False)
     price = db.Column(db.Float, nullable=False)
     description = db.Column(db.Text, nullable=True)
+
+#CART ITEM
+class Product(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'),nullable=False)
+    product_id = db.Column(db.Integer, db.ForeignKey('product.id'),nullable=False)
+   
 
 
 # AUTENTICATION:
@@ -153,11 +163,25 @@ def delete_product(product_id):
 # vai Recuperar o produto da base de dados, Verificar se o produto existe, e se existe apagar da base de dados, mas se nao existe retorna erro (404)
 
 
+#CHECKOUT
+@app.route('/api/cart/add/<int:product_id>', methods=["POST"])
+@login_required
+def add_to_cart(product_id):
+    #usuario
+    user = User.query.get(int(current_user.id))
+    #produto
+    product = Product.query.get(product_id)
 
-# HOMEPAGE - Definir uma rota raiz (página inicial) e a função que será executada 
-@app.route('/')
-def hello_world():
-    return 'Hello World!'
+    if user and Product:
+        cart_item = CartItem(user_id=user.id, product_id=product.id)
+        db.session.add
+        db.session.commit
+        print(user)
+        print(product)
+        return jsonify('message': 'Iten add to the cart successfully')
+    return jsonify({'message': 'Failed to add item to the cart'}), 400
+
+
 
 if __name__ == "__main__":
     app.run(debug=True)
