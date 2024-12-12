@@ -16,12 +16,14 @@ login_manager.login_view = 'login'
 CORS(app)
 
 
-# Modelagem: user (id, username, passworld)
-
+# Modelagem
+# User (id, username, passworld)
 class User(db.Model, UserMixin):
    id = db.Column(db.Integer, primary_key=True)
    username = db.column (db.String(80))
-                         #,nullable=True, unique=True)
+                         #,nullable=False, unique=True) 
+                         # verificar erro quando adicionados no username acima..
+                         #pois assim nao criou username na tabela
    password =db.Column (db.String(30), nullable=True)
 #OBS:unique nao deixa cadastrar nomes iguais
 
@@ -34,7 +36,7 @@ class Product(db.Model):
     description = db.Column(db.Text, nullable=True)
 
 
-# AUTENTICAÇÃO:
+# AUTENTICATION:
 @login_manager.user_loader
 def load_user(user_id):
     return User.query.get(int(user_id))
@@ -59,32 +61,6 @@ def logout():
     return jsonify({"message":"Logged in successfully!"})
 
 
-# ADD Product
-@app.route('/api/products/add', methods=["POST"])
-@login_required
-def add_product():
-    data = request.json
-    if 'name' in data and 'price' in data:
-        product = Product(name=data["name"],price=data["price"],description=data.get("description", ""))
-        db.session.add(product)
-        db.session.commit()
-        return jsonify({"message":"Product added successfully!"})
-    return jsonify({"message":"Invalid product data"}), 400
-
-
-# DELETE Product
-@app.route('/api/products/delete/<int:product_id>', methods=["DELETE"])
-@login_required
-def delete_product(product_id):
-    product = Product.query.get(product_id)
-    if product:
-        db.session.delete(product)
-        db.session.commit()
-        return jsonify({"message":"Product deleted successfully!"})
-    return jsonify({"message":"product not found"}), 404 
-# vai Recuperar o produto da base de dados, Verificar se o produto existe, e se existe apagar da base de dados, mas se nao existe retorna erro (404)
-
-
 # SHOW list PRODUCTs (GET)
 @app.route('/api/products/<int:product_id>', methods=["GET"])
 def get_product(product_id):
@@ -99,7 +75,49 @@ def get_product(product_id):
     return jsonify({"message": "Product not found"}), 404
 
 
-# UPDATE Product (PUT) - Atualizar pruduto
+# DETAILS (GET)
+@app.route('/api/products/<int:product_id>', methods=["GET"])
+def get_product_details(product_id):
+    product = Product.query.get(product_id)
+    if product:
+        return jsonify({
+            "id": product.id,
+            "name": product.name,
+            "price": product.id,
+            "description": product.description
+        })
+    return jsonify({"Product not found"}), 404
+
+# PRODUCTS
+@app.route('/api/products', methods=['GET'])
+def get_products():
+    products = Product.query.all()
+    product_list=[]
+    for product in products:
+        product_data={
+            "id": product.id,
+            "name": product.name,
+            "price": product.price,
+            "description": product.description
+        }
+        product_list.append(product_data)
+        return jsonify(product_list)
+
+
+# ADD 
+@app.route('/api/products/add', methods=["POST"])
+@login_required
+def add_product():
+    data = request.json
+    if 'name' in data and 'price' in data:
+        product = Product(name=data["name"],price=data["price"],description=data.get("description", ""))
+        db.session.add(product)
+        db.session.commit()
+        return jsonify({"message":"Product added successfully!"})
+    return jsonify({"message":"Invalid product data"}), 400
+
+
+# UPDATE (PUT) - Atualizar pruduto
 @app.route('/api/products/update/<int:product_id>', methods=["PUT"])
 @login_required
 def update_product(product_id):
@@ -122,52 +140,17 @@ def update_product(product_id):
     return jsonify({'message': "Product update successfully"})
 
 
-# TABLE PRODUCTS
-@app.route('/api/products', methods=['GET'])
-def get_products():
-    products = Product.query.all()
-    product_list=[]
-    for product in products:
-        product_data={
-            "id": product.id,
-            "name": product.name,
-            "price": product.price,
-            "description": product.description
-        }
-        product_list.append(product_data)
-        return jsonify(product_list)
-
-#DETAILS Products     
-@app.route('/api/products/<int:product_id>', methods=["GET"])
-def get_product_details(product_id):
+# DELETE 
+@app.route('/api/products/delete/<int:product_id>', methods=["DELETE"])
+@login_required
+def delete_product(product_id):
     product = Product.query.get(product_id)
     if product:
-        return jsonify({
-            "id": product.id,
-            "name": product.name,
-            "price": product.id,
-            "description": product.description
-        })
-    return jsonify({"Product not found"}), 404
-
-#UPDATE (PUT) (Atualização)
-@app.route('/api/products/update/<int:product_id>', methods=["PUT"])
-def update_product(product_id):
-    product = Product.query.get(product_id)
-    if not product:
-        return jsonify({"Product not found"}), 404
-    data = request.json
-
-    if 'name' in data:
-        product.name = data['name']
-    
-    if 'price' in data:
-        product.price = data['price']
-    
-    if 'description' in data:
-        product.description = data['description']
-    
-    return jsonify ({'message': 'product update successfully'})
+        db.session.delete(product)
+        db.session.commit()
+        return jsonify({"message":"Product deleted successfully!"})
+    return jsonify({"message":"product not found"}), 404 
+# vai Recuperar o produto da base de dados, Verificar se o produto existe, e se existe apagar da base de dados, mas se nao existe retorna erro (404)
 
 
 
