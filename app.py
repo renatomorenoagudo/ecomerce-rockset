@@ -16,8 +16,7 @@ login_manager.login_view = 'login'
 CORS(app)
 
 
-# Modelagem
-#user (id, username, passworld)
+# Modelagem: user (id, username, passworld)
 
 class User(db.Model, UserMixin):
    id = db.Column(db.Integer, primary_key=True)
@@ -26,12 +25,8 @@ class User(db.Model, UserMixin):
    password =db.Column (db.String(30), nullable=True)
 #OBS:unique nao deixa cadastrar nomes iguais
 
-#CRIAR usuarios
-#user = User(username="", password="")
 
-
- # Produto(id, name, price, description)
-
+# Product (id, name, price, description)
 class Product(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(120), nullable=False)
@@ -39,12 +34,12 @@ class Product(db.Model):
     description = db.Column(db.Text, nullable=True)
 
 
-#AUTENTICAÇÃO:
+# AUTENTICAÇÃO:
 @login_manager.user_loader
 def load_user(user_id):
     return User.query.get(int(user_id))
 
-#ROUTE login
+# LOGIN (user, password)
 @app.route('/login', methods=["POST"])
 def login():
     data = request.json
@@ -56,7 +51,7 @@ def login():
     return jsonify({"message":"Unauthorized. Invalid credentials"}), 401
 
 
-#Route logout
+# LOGOUT
 @app.route('/logout', methods=["POST"])
 @login_required
 def logout():
@@ -64,7 +59,7 @@ def logout():
     return jsonify({"message":"Logged in successfully!"})
 
 
-#Route Product
+# ADD Product
 @app.route('/api/products/add', methods=["POST"])
 @login_required
 def add_product():
@@ -76,22 +71,33 @@ def add_product():
         return jsonify({"message":"Product added successfully!"})
     return jsonify({"message":"Invalid product data"}), 400
 
+
+# DELETE Product
 @app.route('/api/products/delete/<int:product_id>', methods=["DELETE"])
 @login_required
 def delete_product(product_id):
-    # Recuperar o produto da base de dados
-    # Verificar se o produto existe, e se existe apagar da base de dados
-    #se nao existe, retornar erro 404 not found
     product = Product.query.get(product_id)
     if product:
         db.session.delete(product)
         db.session.commit()
         return jsonify({"message":"Product deleted successfully!"})
     return jsonify({"message":"product not found"}), 404 
+# vai Recuperar o produto da base de dados, Verificar se o produto existe, e se existe apagar da base de dados, mas se nao existe retorna erro (404)
+     
+@app.route('/api/products/<int:product_id>', methods=["GET"])
+def get_product_details(product_id):
+    product = Product.query.get(product_id)
+    if product:
+        return jsonify({
+            "id": product.id,
+            "name": product.name,
+             "price": product.id,
+             "description": product.description
+        })
+    return jsonify({"Product not found"}), 404
 
-  
 
-#recuperar detallhes do produto
+# SHOW list PRODUCTs (GET)
 @app.route('/api/products/<int:product_id>', methods=["GET"])
 def get_product(product_id):
     product = Product.query.get(product_id)
@@ -105,6 +111,7 @@ def get_product(product_id):
     return jsonify({"message": "Product not found"}), 404
 
 
+# UPDATE Product (PUT) - Atualizar pruduto
 @app.route('/api/products/update/<int:product_id>', methods=["PUT"])
 @login_required
 def update_product(product_id):
@@ -126,11 +133,12 @@ def update_product(product_id):
     db.session.commit()
     return jsonify({'message': "Product update successfully"})
 
+
+# TABLE PRODUCTS
 @app.route('/api/products', methods=['GET'])
 def get_products():
     products = Product.query.all()
     product_list=[]
-    #print('products')
     for product in products:
         product_data={
             "id": product.id,
@@ -139,12 +147,10 @@ def get_products():
             "description": product.description
         }
         product_list.append(product_data)
-    
-    #    print('product')
-    return jsonify(product_list)
+        return jsonify(product_list)
 
 
-# Definir uma rota raiz (página inicial) e a função que será executada ao requisitar
+# HOMEPAGE - Definir uma rota raiz (página inicial) e a função que será executada 
 @app.route('/')
 def hello_world():
     return 'Hello World!'
