@@ -47,7 +47,7 @@ def login():
 
     if user and data.get("password") == user.password:
             login_user(user)
-            return jsonify({"message":"Logged in successfully!"})
+            return jsonify({"message":"Logged in successfully!"}),
     return jsonify({"message":"Unauthorized. Invalid credentials"}), 401
 
 
@@ -83,18 +83,6 @@ def delete_product(product_id):
         return jsonify({"message":"Product deleted successfully!"})
     return jsonify({"message":"product not found"}), 404 
 # vai Recuperar o produto da base de dados, Verificar se o produto existe, e se existe apagar da base de dados, mas se nao existe retorna erro (404)
-     
-@app.route('/api/products/<int:product_id>', methods=["GET"])
-def get_product_details(product_id):
-    product = Product.query.get(product_id)
-    if product:
-        return jsonify({
-            "id": product.id,
-            "name": product.name,
-             "price": product.id,
-             "description": product.description
-        })
-    return jsonify({"Product not found"}), 404
 
 
 # SHOW list PRODUCTs (GET)
@@ -148,6 +136,39 @@ def get_products():
         }
         product_list.append(product_data)
         return jsonify(product_list)
+
+#DETAILS Products     
+@app.route('/api/products/<int:product_id>', methods=["GET"])
+def get_product_details(product_id):
+    product = Product.query.get(product_id)
+    if product:
+        return jsonify({
+            "id": product.id,
+            "name": product.name,
+            "price": product.id,
+            "description": product.description
+        })
+    return jsonify({"Product not found"}), 404
+
+#UPDATE (PUT) (Atualização)
+@app.route('/api/products/update/<int:product_id>', methods=["PUT"])
+def update_product(product_id):
+    product = Product.query.get(product_id)
+    if not product:
+        return jsonify({"Product not found"}), 404
+    data = request.json
+
+    if 'name' in data:
+        product.name = data['name']
+    
+    if 'price' in data:
+        product.price = data['price']
+    
+    if 'description' in data:
+        product.description = data['description']
+    
+    return jsonify ({'message': 'product update successfully'})
+
 
 
 # HOMEPAGE - Definir uma rota raiz (página inicial) e a função que será executada 
