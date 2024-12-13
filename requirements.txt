@@ -2,10 +2,11 @@
 
 Flask ==2.3.0
 Flask-SQLAlchemy==3.1.1
+Flask-login==0.6.2
 Flask-Cors==3.0.10
 Werkzeug==2.3.0
 
-pip3 install -r requirements.txt
+#pip3 install -r requirements.txt
 
 #para criar no db a nova tabela do codigo precisa apagar as tabelas e criar denovo e comitar:
 # para isso no terminal power shell entre no terminal do flask: 
