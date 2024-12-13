@@ -39,6 +39,7 @@ class CartItem(db.Model):
 def load_user(user_id):
     return User.query.get(int(user_id))
 
+#Login
 @app.route('/login', methods=["POST"])
 def login():
     data = request.json
@@ -50,12 +51,14 @@ def login():
 
     return jsonify({"message": "Unauthorized. Invalid credentials"}), 401
 
+#Logout
 @app.route('/logout', methods=["POST"])
 @login_required
 def logout():
     logout_user()
     return jsonify({"message": "Logout successfully"})
 
+#Add product
 @app.route('/api/products/add', methods=["POST"])
 @login_required
 def add_product():
@@ -67,6 +70,7 @@ def add_product():
         return jsonify({"message": "Product added successfully"})
     return jsonify({"message": "Invalid product data"}), 400
 
+#Delete
 @app.route('/api/products/delete/<int:product_id>', methods=["DELETE"])
 @login_required
 def delete_product(product_id):
@@ -136,6 +140,9 @@ def add_to_cart(product_id):
     product = Product.query.get(product_id)
 
     if user and product:
+        cart_item = CartItem(user_id=user.id, product_id=product.id)
+        db.session.add(cart_item)
+        db.session.commit()
         print(user)
         print(product)
         return jsonify({'message': 'Item added to the cart successfully'})
