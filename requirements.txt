@@ -21,3 +21,13 @@ Werkzeug==2.3.0
 #se quiser ver se foi criado digite: user 
 #db.session.add(user)
 #db.session.commit()
+
+#AWS
+#criar conta na AWS, criar usuário,clica no usuário , clica em credenciais de segurança, 
+#e cria a chave de acesso.baixa o arquivo, e salva as chaves.
+#instalar CLI: https://docs.aws.amazon.com/cli/latest/userguide/getting-started-install.html
+#Instalar o EB CLI(Elastic Beanstalk): https://github.com/aws/aws-elastic-beanstalk-cli-setup?tab=readme-ov-file#1-overview ,baixar zip ou clonar o github
+# no terminal, para instalar entra(cd) na pasta script e digita:
+#python scripts/ebcli_installer.py --version 3.14.13
+#para verificar no terminal os programas se foram instalados só "aws --version" ou eb --version
+#se mudar o codigo com o ambiente aws criado, pode atualizar com : eb deploy (nome da aplicaçao)
